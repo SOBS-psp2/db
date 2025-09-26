@@ -73,10 +73,8 @@ function loadEntries(type) {
       let installBtn = document.createElement('a');
       installBtn.className = "button";
       installBtn.href = e.download_url || "#";
-      installBtn.target = "_blank";
-      installBtn.rel = "noopener noreferrer";
       installBtn.innerText = (e.type === "VPK" ? "Install APP" : (e.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"));
-      installBtn.onclick = ev => ev.stopPropagation();
+      // Don't stopPropagation: allow only card if not clicking source
       btnArea.appendChild(installBtn);
 
       // DATA dependencies as buttons
@@ -151,7 +149,8 @@ function loadEntryPage() {
 
     // Fetch README (main or mirror)
     function setReadme(text) {
-      document.getElementById('entryReadme').innerText = text || "No README available.";
+    // Render markdown using marked.js
+    document.getElementById('entryReadme').innerHTML = marked.parse(text || "No README available.");
     }
     fetch(entry.download_readme)
       .then(r => r.ok?r.text():Promise.reject())
