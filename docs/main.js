@@ -13,7 +13,7 @@ function fallbackSrc(primary, mirror) {
 // Utility: get CSV and cache in sessionStorage
 function fetchCSV(callback) {
   if (window._CSV_CACHE) { callback(window._CSV_CACHE); return; }
-  fetch('db/sobsdataboss.csv?'+Date.now()).then(r => r.text()).then(csv => {
+  fetch('sobsdataboss.csv?'+Date.now()).then(r => r.text()).then(csv => {
     Papa.parse(csv, {
       header: true,
       skipEmptyLines: true,
