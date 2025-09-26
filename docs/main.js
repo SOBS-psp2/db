@@ -94,13 +94,15 @@ function loadEntries(type) {
 
       // Source
       let src = document.createElement('div');
-      src.className = "card-src" + ((e.download_src==="None"||!e.download_src)?" closed":"");
-      if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
-        src.innerHTML = `<a href="${e.download_src}" target="_blank" rel="noopener noreferrer">${e.download_src}</a>`;
-      } else {
-        src.innerText = "CLOSED SRC";
-      }
-      card.appendChild(src);
+    src.className = "card-src" + ((e.download_src==="None"||!e.download_src)?" closed":"");
+    if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
+    src.innerHTML = `<a href="${e.download_src}" target="_blank" rel="noopener noreferrer">${e.download_src}</a>`;
+    // Prevent card click on source link
+    src.querySelector('a').onclick = ev => { ev.stopPropagation(); };
+  } else {
+    src.innerText = "CLOSED SRC";
+  }
+    card.appendChild(src);
 
       grid.appendChild(card);
     });
