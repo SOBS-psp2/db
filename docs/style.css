@@ -40,6 +40,7 @@ main { padding: 2rem 1rem 2rem 1rem; min-height: 80vh; }
 }
 
 .card {
+  position: relative;
   background: #33404c;
   border-radius: 12px;
   box-shadow: 0 2px 12px #0005;
@@ -110,23 +111,38 @@ main { padding: 2rem 1rem 2rem 1rem; min-height: 80vh; }
   max-width: 240px;
   text-align: center;
 }
-.button:hover { background: linear-gradient(90deg, #06c5bf 0%, #56b9e8 100%); color: #0a171f; }
+.button:hover { background: linear-gradient(90deg, #06c5bf 0%, #56b9e8 100%); color: #0a171f; transform: scale(1.045); }
 
-.card .card-src {
+.card-src {
   position: absolute;
-  right: 1rem; bottom: 1rem;
-  font-size: 0.93rem;
+  left: 0.8rem;
+  bottom: 0.6rem;
+  font-size: 0.78rem;
+  color: #8ce8b5;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  z-index: 2;
+  transition: color 0.18s;
+  font-weight: 500;
+  text-shadow: 0 1px 1px #1a2a2a55;
+  overflow-wrap: break-word;
+  max-width: 80%;
+  min-width: 0;
+}
+.card-src a {
+  color: #8ce8b5;
+  text-decoration: underline;
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+.card:hover .card-src a {
   color: #a2e8e1;
-  background: #22303a;
-  border-radius: 5px;
-  padding: 0.3rem 0.7rem;
 }
 
-.card .card-src a {
-  color: #8ce8b5; text-decoration: none; word-break: break-all;
-}
-.card .card-src.closed { color: #f58787; background: #3a2222; }
-
+.card-src.closed { color: #f58787; background: none; }
 
 /* Entry Page */
 .entry-page {
@@ -162,24 +178,34 @@ main { padding: 2rem 1rem 2rem 1rem; min-height: 80vh; }
 .entry-readme {
   background: #23303b;
   border-radius: 10px;
-  padding: 1.2rem 1.8rem 1.2rem 1.8rem;
-  font-size: 1rem;
-  margin: 1.5rem 0;
+  padding: 1rem 1.3rem;
+  font-size: 1.01rem;
+  margin: 1.3rem 0;
   color: #eaf1fb;
-  white-space: pre-wrap;
   overflow-x: auto;
+  line-height: 1.4;
+  max-width: 100%;
 }
+
+.entry-readme h1, .entry-readme h2, .entry-readme h3, .entry-readme h4, .entry-readme h5 {
+  margin: 1.0em 0 0.5em 0;
+  font-weight: bold;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+.entry-readme h1 { font-size: 1.4em; }
+.entry-readme h2 { font-size: 1.17em; }
+.entry-readme h3 { font-size: 1em; }
+.entry-readme ul, .entry-readme ol { margin-left: 1.4em; }
+.entry-readme p { margin: 0.5em 0 0.5em 0; }
+.entry-readme code, .entry-readme pre { background: #27313a; color: #e5e8ea; border-radius: 4px; padding: 0.1em 0.3em; }
+.entry-readme pre { padding: 0.6em 0.8em; }
+.entry-readme a { color: #8ce8b5; text-decoration: underline; }
 
 .entry-buttons {
   display: flex; flex-direction: column; gap: 0.8rem; align-items: flex-start;
   margin-top: 1.2rem;
 }
-
-.entry-src {
-  font-size: 1rem; margin-top: 1.5rem; color: #a2e8e1;
-}
-.entry-src a { color: #8ce8b5; }
-.entry-src.closed { color: #f58787; }
 
 .item-count {
   text-align: center; margin: 2rem 0 0 0; color: #b8cbe2; font-size: 1.12rem;
