@@ -87,7 +87,7 @@ function loadEntries(type) {
       }
       card.appendChild(btnArea);
 
-      // Source (bottom right, small, no box, fits card)
+      // Source (bottom right, small, no box, fits card, never overlaps)
       if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
         let src = document.createElement('div');
         src.className = "card-src";
@@ -116,6 +116,10 @@ function loadEntryPage() {
       document.getElementById('entryPage').innerHTML = `<h2>Entry not found.</h2>`;
       return;
     }
+
+    // Set the page/tab title to the entry title
+    document.title = "VitaDB - " + (entry.title || entry.id);
+
     // Find DATA dependency if any
     let dataDep = entries.find(e2 => e2.type==="DATA" && (e2.depends===entryID || entry.depends===e2.id) && (!e2.visible || e2.visible==="1"||e2.visible===""));
 
