@@ -74,7 +74,6 @@ function loadEntries(type) {
       installBtn.className = "button";
       installBtn.href = e.download_url || "#";
       installBtn.innerText = (e.type === "VPK" ? "Install APP" : (e.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"));
-      // Don't stopPropagation: allow only card if not clicking source
       btnArea.appendChild(installBtn);
 
       // DATA dependencies as buttons
@@ -90,17 +89,14 @@ function loadEntries(type) {
       }
       card.appendChild(btnArea);
 
-      // Source
-      let src = document.createElement('div');
-    src.className = "card-src" + ((e.download_src==="None"||!e.download_src)?" closed":"");
-    if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
-    src.innerHTML = `<a href="${e.download_src}" target="_blank" rel="noopener noreferrer">${e.download_src}</a>`;
-    // Prevent card click on source link
-    src.querySelector('a').onclick = ev => { ev.stopPropagation(); };
-  } else {
-    src.innerText = "CLOSED SRC";
-  }
-    card.appendChild(src);
+      // Source (bottom left, just the link, small, no box)
+      if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
+        let src = document.createElement('div');
+        src.className = "card-src";
+        src.innerHTML = `<a href="${e.download_src}" target="_blank" rel="noopener noreferrer">${e.download_src}</a>`;
+        src.querySelector('a').onclick = ev => { ev.stopPropagation(); };
+        card.appendChild(src);
+      }
 
       grid.appendChild(card);
     });
@@ -134,23 +130,16 @@ function loadEntryPage() {
     </div>
     <div class="entry-readme" id="entryReadme">Loading README...</div>
     <div class="entry-buttons">
-      <a class="button" href="${entry.download_url}" target="_blank" rel="noopener noreferrer">${entry.type==="VPK"?"Install APP":(entry.type==="PLUGIN"?"Install PLUGIN":"Install DATA")}</a>
-      ${dataDep?`<a class="button" href="${dataDep.download_url}" target="_blank" rel="noopener noreferrer">Install DATA</a>`:""}
-    </div>
-    <div class="entry-src${(!entry.download_src||entry.download_src==="None")?" closed":""}">`
-    if (entry.download_src && entry.download_src !== "None" && entry.download_src.trim() !== "") {
-      html += `<a href="${entry.download_src}" target="_blank" rel="noopener noreferrer">${entry.download_src}</a>`;
-    } else {
-      html += "CLOSED SRC";
-    }
-    html += "</div>";
+      <a class="button" href="${entry.download_url}">${entry.type==="VPK"?"Install APP":(entry.type==="PLUGIN"?"Install PLUGIN":"Install DATA")}</a>
+      ${dataDep?`<a class="button" href="${dataDep.download_url}">Install DATA</a>`:""}
+    </div>`;
 
     document.getElementById('entryPage').innerHTML = html;
 
     // Fetch README (main or mirror)
     function setReadme(text) {
-    // Render markdown using marked.js
-    document.getElementById('entryReadme').innerHTML = marked.parse(text || "No README available.");
+      // Render markdown using marked.js
+      document.getElementById('entryReadme').innerHTML = marked.parse(text || "No README available.");
     }
     fetch(entry.download_readme)
       .then(r => r.ok?r.text():Promise.reject())
