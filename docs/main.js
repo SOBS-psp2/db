@@ -118,7 +118,7 @@ function loadEntryPage() {
     }
 
     // Set the page/tab title to the entry title
-    document.title = "VitaDB - " + (entry.title || entry.id);
+    document.title = "SobsDB - " + (entry.title || entry.id);
 
     // Find DATA dependency if any
     let dataDep = entries.find(e2 => e2.type==="DATA" && (e2.depends===entryID || entry.depends===e2.id) && (!e2.visible || e2.visible==="1"||e2.visible===""));
