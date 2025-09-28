@@ -67,7 +67,7 @@ function loadEntries(type) {
       author.innerText = e.credits || "";
       card.appendChild(author);
 
-      // Install Button
+      // Install Button(s)
       let btnArea = document.createElement('div');
       btnArea.className = "card-buttons";
       let installBtn = document.createElement('a');
@@ -81,15 +81,13 @@ function loadEntries(type) {
         let dataBtn = document.createElement('a');
         dataBtn.className = "button";
         dataBtn.href = dataMap[e.depends].download_url || "#";
-        dataBtn.target = "_blank";
-        dataBtn.rel = "noopener noreferrer";
         dataBtn.innerText = "Install DATA";
         dataBtn.onclick = ev => ev.stopPropagation();
         btnArea.appendChild(dataBtn);
       }
       card.appendChild(btnArea);
 
-      // Source (bottom left, just the link, small, no box)
+      // Source (bottom right, small, no box, fits card)
       if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
         let src = document.createElement('div');
         src.className = "card-src";
