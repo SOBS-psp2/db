@@ -115,9 +115,9 @@ main { padding: 2rem 1rem 2rem 1rem; min-height: 80vh; }
 
 .card-src {
   position: absolute;
-  left: 0.8rem;
-  bottom: 0.6rem;
-  font-size: 0.78rem;
+  bottom: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.82rem;
   color: #8ce8b5;
   background: none;
   border: none;
@@ -129,13 +129,15 @@ main { padding: 2rem 1rem 2rem 1rem; min-height: 80vh; }
   font-weight: 500;
   text-shadow: 0 1px 1px #1a2a2a55;
   overflow-wrap: break-word;
-  max-width: 80%;
+  max-width: 70%;
   min-width: 0;
+  line-height: 1.25;
+  text-align: right;
 }
 .card-src a {
   color: #8ce8b5;
   text-decoration: underline;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   word-break: break-all;
 }
 .card:hover .card-src a {
@@ -175,31 +177,36 @@ main { padding: 2rem 1rem 2rem 1rem; min-height: 80vh; }
   color: #b8cbe2; font-size: 1.1rem; margin-top: 0.5rem;
 }
 
+/* Markdown/README styling: compact and consistent */
 .entry-readme {
   background: #23303b;
   border-radius: 10px;
-  padding: 1rem 1.3rem;
+  padding: 1.1rem 1.4rem;
   font-size: 1.01rem;
-  margin: 1.3rem 0;
+  margin: 1.2rem 0;
   color: #eaf1fb;
   overflow-x: auto;
-  line-height: 1.4;
+  line-height: 1.45;
   max-width: 100%;
 }
 
 .entry-readme h1, .entry-readme h2, .entry-readme h3, .entry-readme h4, .entry-readme h5 {
-  margin: 1.0em 0 0.5em 0;
+  margin: 0.9em 0 0.4em 0;
   font-weight: bold;
   letter-spacing: 0.01em;
-  line-height: 1.1;
+  line-height: 1.18;
 }
-.entry-readme h1 { font-size: 1.4em; }
-.entry-readme h2 { font-size: 1.17em; }
+.entry-readme h1 { font-size: 1.3em; }
+.entry-readme h2 { font-size: 1.12em; }
 .entry-readme h3 { font-size: 1em; }
-.entry-readme ul, .entry-readme ol { margin-left: 1.4em; }
-.entry-readme p { margin: 0.5em 0 0.5em 0; }
-.entry-readme code, .entry-readme pre { background: #27313a; color: #e5e8ea; border-radius: 4px; padding: 0.1em 0.3em; }
-.entry-readme pre { padding: 0.6em 0.8em; }
+.entry-readme ul, .entry-readme ol { margin: 0.3em 0 0.3em 1.3em; }
+.entry-readme li { margin-bottom: 0.13em; }
+.entry-readme p {
+  margin: 0.28em 0 0.28em 0;
+  line-height: 1.48;
+}
+.entry-readme code, .entry-readme pre { background: #27313a; color: #e5e8ea; border-radius: 4px; padding: 0.09em 0.28em; }
+.entry-readme pre { padding: 0.55em 0.7em; }
 .entry-readme a { color: #8ce8b5; text-decoration: underline; }
 
 .entry-buttons {
