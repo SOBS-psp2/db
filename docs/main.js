@@ -35,7 +35,20 @@ function loadEntries(type) {
     );
     // For DATA dependency lookup
     let dataMap = {};
-    entries.forEach(e=>{ if(e.type==="DATA" && (!e.visible || e.visible==="1"||e.visible==="")) dataMap[e.id]=e; });
+    entries.forEach(e => {
+      if (
+        e.type === "DATA" &&
+        (!e.visible || e.visible === "1" || e.visible === "")
+      ) dataMap[e.id] = e;
+    });
+
+    // For each entry, collect DATA dependencies based on its 'depends' field (can be comma separated list)
+    function getDataDependencies(entry) {
+      if (!entry.depends) return [];
+      // allow for multiple IDs separated by comma, space, or semicolon
+      const ids = entry.depends.split(/[\s,;]+/).filter(Boolean);
+      return ids.map(id => dataMap[id]).filter(Boolean);
+    }
 
     // Render cards
     const grid = document.getElementById('cardGrid');
@@ -76,15 +89,17 @@ function loadEntries(type) {
       installBtn.innerText = (e.type === "VPK" ? "Install APP" : (e.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"));
       btnArea.appendChild(installBtn);
 
-      // DATA dependencies as buttons
-      if (e.depends && dataMap[e.depends]) {
+      // DATA dependencies as buttons (support multiple DATA entries)
+      const dataDeps = getDataDependencies(e);
+      dataDeps.forEach(dataEntry => {
         let dataBtn = document.createElement('a');
         dataBtn.className = "button";
-        dataBtn.href = dataMap[e.depends].download_url || "#";
+        dataBtn.href = dataEntry.download_url || "#";
         dataBtn.innerText = "Install DATA";
         dataBtn.onclick = ev => ev.stopPropagation();
         btnArea.appendChild(dataBtn);
-      }
+      });
+
       card.appendChild(btnArea);
 
       // Source (bottom right, small, no box, fits card, never overlaps)
@@ -120,8 +135,25 @@ function loadEntryPage() {
     // Set the page/tab title to the entry title
     document.title = "SobsDB - " + (entry.title || entry.id);
 
-    // Find DATA dependency if any
-    let dataDep = entries.find(e2 => e2.type==="DATA" && (e2.depends===entryID || entry.depends===e2.id) && (!e2.visible || e2.visible==="1"||e2.visible===""));
+    // For DATA dependency lookup
+    let dataMap = {};
+    entries.forEach(e => {
+      if (
+        e.type === "DATA" &&
+        (!e.visible || e.visible === "1" || e.visible === "")
+      ) dataMap[e.id] = e;
+    });
+
+    // For each entry, collect DATA dependencies based on its 'depends' field (can be comma separated list)
+    function getDataDependencies(entry) {
+      if (!entry.depends) return [];
+      // allow for multiple IDs separated by comma, space, or semicolon
+      const ids = entry.depends.split(/[\s,;]+/).filter(Boolean);
+      return ids.map(id => dataMap[id]).filter(Boolean);
+    }
+
+    // DATA dependencies for this entry
+    const dataDeps = getDataDependencies(entry);
 
     let html = `<div class="entry-header">
       <img class="entry-icon" src="${entry.download_icon0}" loading="lazy" onerror="this.onerror=null;this.src='${entry.download_icon0_mirror||'https://via.placeholder.com/128x128?text=No+Icon'}';">
@@ -133,7 +165,11 @@ function loadEntryPage() {
     <div class="entry-readme" id="entryReadme">Loading README...</div>
     <div class="entry-buttons">
       <a class="button" href="${entry.download_url}">${entry.type==="VPK"?"Install APP":(entry.type==="PLUGIN"?"Install PLUGIN":"Install DATA")}</a>
-      ${dataDep?`<a class="button" href="${dataDep.download_url}">Install DATA</a>`:""}
+      ${
+        dataDeps.map(dataEntry =>
+          `<a class="button" href="${dataEntry.download_url}">Install DATA</a>`
+        ).join("")
+      }
     </div>`;
 
     document.getElementById('entryPage').innerHTML = html;
