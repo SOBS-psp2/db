@@ -25,7 +25,14 @@ function fetchCSV(callback) {
   });
 }
 
-// Main list loader
+// Helper: get DATA dependencies for an entry (supports comma/space/semicolon separated IDs)
+function getDataDependencies(entry, dataMap) {
+  if (!entry.depends) return [];
+  const ids = entry.depends.split(/[\s,;]+/).filter(Boolean);
+  return ids.map(id => dataMap[id]).filter(Boolean);
+}
+
+// Main list loader (Apps/Plugins)
 function loadEntries(type) {
   fetchCSV(entries => {
     // Filter by type and visible (visible!=0 or !=false or blank)
@@ -42,74 +49,100 @@ function loadEntries(type) {
       ) dataMap[e.id] = e;
     });
 
-    // For each entry, collect DATA dependencies based on its 'depends' field (can be comma separated list)
-    function getDataDependencies(entry) {
-      if (!entry.depends) return [];
-      // allow for multiple IDs separated by comma, space, or semicolon
-      const ids = entry.depends.split(/[\s,;]+/).filter(Boolean);
-      return ids.map(id => dataMap[id]).filter(Boolean);
-    }
-
     // Render cards
     const grid = document.getElementById('cardGrid');
     grid.innerHTML = "";
     filtered.forEach(e => {
+      // Card container
       let card = document.createElement('div');
-      card.className = "card";
+      card.className = "vita-app";
       card.tabIndex = 0;
       card.title = e.id;
       card.onclick = () => { window.location.href = `entry.html?id=${encodeURIComponent(e.id)}`; };
 
-      // Icon
+      // App Icon area
+      let iconArea = document.createElement('div');
+      iconArea.className = "vita-app-icon";
+      // Bubble overlay (optional, can be commented out if not needed)
+      // let overlay = document.createElement('img');
+      // overlay.src = "BubbleOverlay.png";
+      // overlay.width = 128;
+      // overlay.height = 128;
+      // overlay.className = "bubble-overlay";
+      // iconArea.appendChild(overlay);
+
+      // App icon
       let icon = document.createElement('img');
-      icon.className = "card-icon";
       icon.src = e.download_icon0;
       icon.loading = "lazy";
+      icon.width = 128;
+      icon.height = 128;
+      icon.className = "bubble";
       icon.onerror = fallbackSrc(e.download_icon0, e.download_icon0_mirror);
-      card.appendChild(icon);
+      iconArea.appendChild(icon);
 
       // Title
-      let title = document.createElement('div');
-      title.className = "card-title";
+      let title = document.createElement('b');
       title.innerText = e.title || e.id;
-      card.appendChild(title);
+      iconArea.appendChild(document.createElement('br'));
+      iconArea.appendChild(title);
 
+      card.appendChild(iconArea);
+
+      // App info section
+      let info = document.createElement('div');
+      info.className = "vita-app-info";
       // Author
-      let author = document.createElement('div');
-      author.className = "card-author";
+      let author = document.createElement('span');
+      author.style.fontSize = "80%";
       author.innerText = e.credits || "";
-      card.appendChild(author);
+      info.appendChild(author);
 
-      // Install Button(s)
-      let btnArea = document.createElement('div');
-      btnArea.className = "card-buttons";
-      let installBtn = document.createElement('a');
-      installBtn.className = "button";
-      installBtn.href = e.download_url || "#";
-      installBtn.innerText = (e.type === "VPK" ? "Install APP" : (e.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"));
-      btnArea.appendChild(installBtn);
+      // Quick download area (Install buttons)
+      let qda = document.createElement('div');
+      qda.className = "quick-download-area";
+      // Install main app/plugin/data
+      let mainBtn = document.createElement('a');
+      mainBtn.href = e.download_url || "#";
+      mainBtn.className = "download-button";
+      mainBtn.innerText = (
+        e.type === "VPK" ? "Install APP" :
+        e.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"
+      );
+      qda.appendChild(mainBtn);
 
       // DATA dependencies as buttons (support multiple DATA entries)
-      const dataDeps = getDataDependencies(e);
+      let dataDeps = getDataDependencies(e, dataMap);
       dataDeps.forEach(dataEntry => {
         let dataBtn = document.createElement('a');
-        dataBtn.className = "button";
         dataBtn.href = dataEntry.download_url || "#";
+        dataBtn.className = "download-button";
         dataBtn.innerText = "Install DATA";
-        dataBtn.onclick = ev => ev.stopPropagation();
-        btnArea.appendChild(dataBtn);
+        qda.appendChild(dataBtn);
       });
 
-      card.appendChild(btnArea);
+      info.appendChild(qda);
 
-      // Source (bottom right, small, no box, fits card, never overlaps)
+      // Source code link, bottom right (if available)
       if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
-        let src = document.createElement('div');
-        src.className = "card-src";
-        src.innerHTML = `<a href="${e.download_src}" target="_blank" rel="noopener noreferrer">${e.download_src}</a>`;
-        src.querySelector('a').onclick = ev => { ev.stopPropagation(); };
-        card.appendChild(src);
+        let srcDiv = document.createElement('div');
+        srcDiv.className = "vita-src-download to-bottom";
+        let srcLink = document.createElement('a');
+        srcLink.href = e.download_src;
+        srcLink.target = "_blank";
+        srcLink.rel = "noopener noreferrer";
+        srcLink.innerText = e.download_src;
+        srcDiv.appendChild(srcLink);
+        info.appendChild(srcDiv);
+      } else {
+        // If closed source, show "CLOSED SRC"
+        let srcDiv = document.createElement('div');
+        srcDiv.className = "vita-src-download to-bottom";
+        srcDiv.innerText = "CLOSED SRC";
+        info.appendChild(srcDiv);
       }
+
+      card.appendChild(info);
 
       grid.appendChild(card);
     });
@@ -124,15 +157,12 @@ function loadEntryPage() {
   let params = new URLSearchParams(window.location.search);
   let entryID = params.get('id');
   if (!entryID) return;
-
   fetchCSV(entries => {
     let entry = entries.find(e => e.id === entryID);
     if (!entry) {
       document.getElementById('entryPage').innerHTML = `<h2>Entry not found.</h2>`;
       return;
     }
-
-    // Set the page/tab title to the entry title
     document.title = "SobsDB - " + (entry.title || entry.id);
 
     // For DATA dependency lookup
@@ -143,48 +173,53 @@ function loadEntryPage() {
         (!e.visible || e.visible === "1" || e.visible === "")
       ) dataMap[e.id] = e;
     });
+    let dataDeps = getDataDependencies(entry, dataMap);
 
-    // For each entry, collect DATA dependencies based on its 'depends' field (can be comma separated list)
-    function getDataDependencies(entry) {
-      if (!entry.depends) return [];
-      // allow for multiple IDs separated by comma, space, or semicolon
-      const ids = entry.depends.split(/[\s,;]+/).filter(Boolean);
-      return ids.map(id => dataMap[id]).filter(Boolean);
-    }
-
-    // DATA dependencies for this entry
-    const dataDeps = getDataDependencies(entry);
-
-    let html = `<div class="entry-header">
-      <img class="entry-icon" src="${entry.download_icon0}" loading="lazy" onerror="this.onerror=null;this.src='${entry.download_icon0_mirror||'https://via.placeholder.com/128x128?text=No+Icon'}';">
-      <div>
-        <div class="entry-title">${entry.title||entry.id} <span class="entry-id">(${entry.id})</span></div>
-        <div class="entry-author">${entry.credits||""}</div>
+    // Entry page layout
+    let html = `
+      <div class="vita-app-page">
+        <div class="vita-app-page-icon">
+          <img src="${entry.download_icon0}" loading="lazy" width="128" height="128" class="bubble" onerror="this.onerror=null;this.src='${entry.download_icon0_mirror||'https://via.placeholder.com/128x128?text=No+Icon'}';">
+        </div>
+        <div class="vita-app-page-title">
+          <b>${entry.title || entry.id} (${entry.id})</b>
+        </div>
+        <b>${entry.credits || ""}</b>
+        <div class="vita-entry-info">
+          <div class="vita-app-page-readme" id="entryReadme">Loading README...</div>
+          <div class="quick-download-area">
+            <a href="${entry.download_url}" class="download-button">${
+              entry.type === "VPK" ? "Install APP" :
+              entry.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"
+            }</a>
+            ${
+              dataDeps.map(dataEntry =>
+                `<a class="download-button" href="${dataEntry.download_url}">Install DATA</a>`
+              ).join("")
+            }
+          </div>
+          <div class="vita-src-download to-bottom">
+            ${
+              entry.download_src && entry.download_src !== "None" && entry.download_src.trim() !== ""
+              ? `<a href="${entry.download_src}" target="_blank" rel="noopener noreferrer">${entry.download_src}</a>`
+              : "CLOSED SRC"
+            }
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="entry-readme" id="entryReadme">Loading README...</div>
-    <div class="entry-buttons">
-      <a class="button" href="${entry.download_url}">${entry.type==="VPK"?"Install APP":(entry.type==="PLUGIN"?"Install PLUGIN":"Install DATA")}</a>
-      ${
-        dataDeps.map(dataEntry =>
-          `<a class="button" href="${dataEntry.download_url}">Install DATA</a>`
-        ).join("")
-      }
-    </div>`;
-
+    `;
     document.getElementById('entryPage').innerHTML = html;
 
     // Fetch README (main or mirror)
     function setReadme(text) {
-      // Render markdown using marked.js
       document.getElementById('entryReadme').innerHTML = marked.parse(text || "No README available.");
     }
     fetch(entry.download_readme)
-      .then(r => r.ok?r.text():Promise.reject())
+      .then(r => r.ok ? r.text() : Promise.reject())
       .then(setReadme)
-      .catch(()=>{
-        if(entry.download_readme_mirror) {
-          fetch(entry.download_readme_mirror).then(r=>r.ok?r.text():Promise.reject()).then(setReadme).catch(()=>setReadme("No README available."));
+      .catch(() => {
+        if (entry.download_readme_mirror) {
+          fetch(entry.download_readme_mirror).then(r => r.ok ? r.text() : Promise.reject()).then(setReadme).catch(() => setReadme("No README available."));
         } else setReadme("No README available.");
       });
   });
