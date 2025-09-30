@@ -5,7 +5,7 @@ function fallbackSrc(primary, mirror) {
       e.target.src = mirror;
     } else {
       e.target.onerror = null;
-      e.target.src = "https://via.placeholder.com/112x112?text=No+Icon";
+      e.target.src = "https://via.placeholder.com/128x128?text=No+Icon";
     }
   };
 }
@@ -63,15 +63,6 @@ function loadEntries(type) {
       // App Icon area
       let iconArea = document.createElement('div');
       iconArea.className = "vita-app-icon";
-      // Bubble overlay (optional, can be commented out if not needed)
-      // let overlay = document.createElement('img');
-      // overlay.src = "BubbleOverlay.png";
-      // overlay.width = 128;
-      // overlay.height = 128;
-      // overlay.className = "bubble-overlay";
-      // iconArea.appendChild(overlay);
-
-      // App icon
       let icon = document.createElement('img');
       icon.src = e.download_icon0;
       icon.loading = "lazy";
@@ -81,68 +72,58 @@ function loadEntries(type) {
       icon.onerror = fallbackSrc(e.download_icon0, e.download_icon0_mirror);
       iconArea.appendChild(icon);
 
-      // Title
-      let title = document.createElement('b');
-      title.innerText = e.title || e.id;
-      iconArea.appendChild(document.createElement('br'));
-      iconArea.appendChild(title);
-
       card.appendChild(iconArea);
 
-      // App info section
-      let info = document.createElement('div');
-      info.className = "vita-app-info";
-      // Author
-      let author = document.createElement('span');
-      author.style.fontSize = "80%";
-      author.innerText = e.credits || "";
-      info.appendChild(author);
+      // Title
+      let title = document.createElement('div');
+      title.style.textAlign = "center";
+      title.innerHTML = `<b>${e.title || e.id}</b>`;
+      card.appendChild(title);
 
-      // Quick download area (Install buttons)
-      let qda = document.createElement('div');
-      qda.className = "quick-download-area";
-      // Install main app/plugin/data
+      // Author
+      let author = document.createElement('div');
+      author.style.textAlign = "center";
+      author.innerText = e.credits || "";
+      card.appendChild(author);
+
+      // Download buttons area
+      let dlArea = document.createElement('div');
+      dlArea.className = "quick-download-area";
+      // Main Download button
       let mainBtn = document.createElement('a');
       mainBtn.href = e.download_url || "#";
       mainBtn.className = "download-button";
       mainBtn.innerText = (
-        e.type === "VPK" ? "Install APP" :
-        e.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"
+        e.type === "VPK" ? "Download APP" :
+        e.type === "PLUGIN" ? "Download PLUGIN" : "Download DATA"
       );
-      qda.appendChild(mainBtn);
+      dlArea.appendChild(mainBtn);
 
-      // DATA dependencies as buttons (support multiple DATA entries)
+      // DATA dependencies as buttons
       let dataDeps = getDataDependencies(e, dataMap);
       dataDeps.forEach(dataEntry => {
         let dataBtn = document.createElement('a');
         dataBtn.href = dataEntry.download_url || "#";
         dataBtn.className = "download-button";
-        dataBtn.innerText = "Install DATA";
-        qda.appendChild(dataBtn);
+        dataBtn.innerText = "Download DATA";
+        dlArea.appendChild(dataBtn);
       });
-
-      info.appendChild(qda);
+      card.appendChild(dlArea);
 
       // Source code link, bottom right (if available)
+      let srcDiv = document.createElement('div');
+      srcDiv.className = "vita-src-download";
       if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
-        let srcDiv = document.createElement('div');
-        srcDiv.className = "vita-src-download to-bottom";
         let srcLink = document.createElement('a');
         srcLink.href = e.download_src;
         srcLink.target = "_blank";
         srcLink.rel = "noopener noreferrer";
         srcLink.innerText = e.download_src;
         srcDiv.appendChild(srcLink);
-        info.appendChild(srcDiv);
       } else {
-        // If closed source, show "CLOSED SRC"
-        let srcDiv = document.createElement('div');
-        srcDiv.className = "vita-src-download to-bottom";
         srcDiv.innerText = "CLOSED SRC";
-        info.appendChild(srcDiv);
       }
-
-      card.appendChild(info);
+      card.appendChild(srcDiv);
 
       grid.appendChild(card);
     });
@@ -152,7 +133,7 @@ function loadEntries(type) {
   });
 }
 
-// Entry page loader
+// Entry page loader (details + README)
 function loadEntryPage() {
   let params = new URLSearchParams(window.location.search);
   let entryID = params.get('id');
@@ -189,12 +170,12 @@ function loadEntryPage() {
           <div class="vita-app-page-readme" id="entryReadme">Loading README...</div>
           <div class="quick-download-area">
             <a href="${entry.download_url}" class="download-button">${
-              entry.type === "VPK" ? "Install APP" :
-              entry.type === "PLUGIN" ? "Install PLUGIN" : "Install DATA"
+              entry.type === "VPK" ? "Download APP" :
+              entry.type === "PLUGIN" ? "Download PLUGIN" : "Download DATA"
             }</a>
             ${
               dataDeps.map(dataEntry =>
-                `<a class="download-button" href="${dataEntry.download_url}">Install DATA</a>`
+                `<a class="download-button" href="${dataEntry.download_url}">Download DATA</a>`
               ).join("")
             }
           </div>
