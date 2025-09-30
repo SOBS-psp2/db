@@ -40,6 +40,7 @@ function loadEntries(type) {
       e.type === type &&
       (e.visible === undefined || e.visible === "" || e.visible === "1" || e.visible.toLowerCase() === "true")
     );
+
     // For DATA dependency lookup
     let dataMap = {};
     entries.forEach(e => {
@@ -53,16 +54,18 @@ function loadEntries(type) {
     const grid = document.getElementById('cardGrid');
     grid.innerHTML = "";
     filtered.forEach(e => {
-      // Card container
+      // Outer card
       let card = document.createElement('div');
       card.className = "vita-app";
       card.tabIndex = 0;
       card.title = e.id;
+      card.style.position = "relative";
       card.onclick = () => { window.location.href = `entry.html?id=${encodeURIComponent(e.id)}`; };
 
-      // App Icon area
+      // App icon area
       let iconArea = document.createElement('div');
       iconArea.className = "vita-app-icon";
+      iconArea.style.position = "relative";
       let icon = document.createElement('img');
       icon.src = e.download_icon0;
       icon.loading = "lazy";
@@ -86,7 +89,7 @@ function loadEntries(type) {
       author.innerText = e.credits || "";
       card.appendChild(author);
 
-      // Download buttons area
+      // Download area
       let dlArea = document.createElement('div');
       dlArea.className = "quick-download-area";
       // Main Download button
@@ -110,9 +113,12 @@ function loadEntries(type) {
       });
       card.appendChild(dlArea);
 
-      // Source code link, bottom right (if available)
+      // Source code link (bottom right, vita-src-download)
       let srcDiv = document.createElement('div');
       srcDiv.className = "vita-src-download";
+      srcDiv.style.position = "absolute";
+      srcDiv.style.right = "4px";
+      srcDiv.style.bottom = "2px";
       if (e.download_src && e.download_src !== "None" && e.download_src.trim() !== "") {
         let srcLink = document.createElement('a');
         srcLink.href = e.download_src;
@@ -179,7 +185,7 @@ function loadEntryPage() {
               ).join("")
             }
           </div>
-          <div class="vita-src-download to-bottom">
+          <div class="vita-src-download to-bottom" style="position:absolute;right:4px;bottom:2px;">
             ${
               entry.download_src && entry.download_src !== "None" && entry.download_src.trim() !== ""
               ? `<a href="${entry.download_src}" target="_blank" rel="noopener noreferrer">${entry.download_src}</a>`
